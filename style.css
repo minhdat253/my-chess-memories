@@ -1,0 +1,347 @@
+/* ===========================
+   🎨 GIAO DIỆN CHUYÊN NGHIỆP
+=========================== */
+
+:root {
+  --color-bg1: #0f2027;
+  --color-bg2: #203a43;
+  --color-bg3: #2c5364;
+  --primary: #4a90e2;
+  --primary-light: #63b3ff;
+  --secondary: #ff5c5c;
+  --light-square: #f2d2a9;
+  --dark-square: #b47c4d;
+  --text-light: #f9f9f9;
+  --text-muted: #c0c0c0;
+  --board-size: 680px;
+}
+
+/* Toàn trang */
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(135deg, var(--color-bg1), var(--color-bg2), var(--color-bg3));
+  color: var(--text-light);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  overflow-x: hidden;
+}
+
+/* ===========================
+   HEADER
+=========================== */
+.header {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.header h1 {
+  font-size: 2.4rem;
+  letter-spacing: 1px;
+  color: #ffffff;
+  background: linear-gradient(to right, #63b3ff, #ff9a9e);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 6px;
+  margin-top: 5px;
+}
+
+.header p {
+  color: var(--text-muted);
+  font-size: 1.1rem;
+}
+
+/* ===========================
+   MAIN LAYOUT
+=========================== */
+.main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 30px;
+}
+
+/* ===========================
+   BÀN CỜ (ĐÃ SỬA CHO HIỂN THỊ TỌA ĐỘ RÌA)
+=========================== */
+#board {
+  width: var(--board-size);
+  height: var(--board-size);
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  grid-template-rows: repeat(8, 1fr);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  background-color: #fff;
+  /* 👇 HAI THAY ĐỔI QUAN TRỌNG NHẤT */
+  overflow: visible; /* Cho phép nhãn tọa độ hiển thị ngoài rìa */
+  position: relative; /* Cần thiết để các nhãn position: absolute căn theo #board */
+  /* 👆 */
+  margin-top: 20px;
+}
+
+.square {
+  width: 100%;
+  height: 100%;
+  transition: background 0.25s ease;
+}
+
+.square[data-dark="true"] { background-color: var(--dark-square); }
+.square[data-dark="false"] { background-color: var(--light-square); }
+
+
+/* ===========================
+   QUÂN CỜ
+=========================== */
+.piece {
+  width: 100%;
+  height: 100%;
+  
+  /* 👇 KHẮC PHỤC LỖI HIỂN THỊ 4 QUÂN CỜ BẰNG background-image */
+  background-size: contain; 
+  background-repeat: no-repeat; 
+  background-position: center; 
+  /* 👆 */
+  
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.25s ease, filter 0.25s ease;
+  
+  /* 👇 CẢI THIỆN ĐỘ SẮC NÉT (ÁP DỤNG CHO BACKGROUND IMAGE) */
+  image-rendering: -webkit-optimize-contrast; /* Dành cho trình duyệt cũ của WebKit */
+  image-rendering: crisp-edges; /* Cố gắng duy trì độ sắc nét của viền */
+  
+  /* Nếu hình ảnh quân cờ của bạn là ảnh vector (SVG), bạn có thể bỏ 2 dòng trên
+     hoặc thử dùng 'pixelated' nếu bạn muốn hiệu ứng pixel rõ ràng. */
+}
+
+/* Khối này hiện KHÔNG có tác dụng vì bạn dùng background-image trong JS */
+.piece img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  image-rendering: crisp-edges;
+  image-rendering: pixelated;
+  pointer-events: none;
+}
+
+
+.piece:hover {
+  transform: scale(1.12);
+  filter: brightness(1.2);
+}
+
+/* ... Các phần còn lại của style.css giữ nguyên ... */
+/* ===========================
+   CONTROL SECTION
+=========================== */
+.control-section {
+  background: rgba(255,255,255,0.08);
+  border-radius: 14px;
+  padding: 20px 30px;
+  box-shadow: 0 4px 18px rgba(0,0,0,0.3);
+  text-align: center;
+  margin-top: 50px;
+}
+
+label {
+  display: block;
+  font-weight: 600;
+  color: var(--text-light);
+  margin-bottom: 10px;
+  font-size: 1.05rem;
+}
+
+/* Thêm/Sửa khối này trong style.css */
+.file-label, .rank-label {
+  position: absolute; /* Cho phép đặt ngoài rìa */
+  font-size: 1 rem;
+  font-weight: bold;
+  color: var(--text-light);
+  pointer-events: none; 
+  opacity: 0.6;
+}
+
+/* Nhãn cột a-h (Hàng 1) */
+.file-label {
+  text-align: center;
+  width: calc(var(--board-size) / 8); 
+  transform: translateX(-50%); 
+}
+
+/* Nhãn hàng 1-8 (Cột h) */
+.rank-label {
+  /* ... Các thuộc tính cơ bản giữ nguyên ... */
+  text-align: left; /* 👈 THAY ĐỔI CĂN CHỈNH VĂN BẢN SANG TRÁI */
+  height: calc(var(--board-size) / 8); 
+  display: flex;
+  align-items: center;
+  justify-content: flex-start; /* 👈 THAY justify-content TỪ 'flex-end' SANG 'flex-start' */
+  padding-left: 5px; /* 👈 THAY padding-right SANG padding-left */
+  padding-right: 0; /* Đảm bảo không còn padding ở bên phải */
+  transform: translateY(-50%); 
+}
+
+/* ===========================
+   CSS CHO CHUYỂN VỊ TRÍ NHÃN (KHÔNG XOAY)
+=========================== */
+
+input[type="range"] {
+  width: 260px;
+  cursor: pointer;
+  accent-color: var(--primary);
+}
+
+.btn-group {
+  margin-top: 18px;
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+}
+
+/* ===========================
+   NÚT BẤM HIỆU ỨNG
+=========================== */
+.btn {
+  padding: 12px 28px;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  color: white;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+/* Hiệu ứng ánh sáng hover */
+.btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -75%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(120deg, rgba(255,255,255,0.2), rgba(255,255,255,0.6), rgba(255,255,255,0.2));
+  transform: skewX(-25deg);
+  transition: left 0.4s ease;
+}
+
+.btn:hover::before {
+  left: 130%;
+}
+
+.btn.primary {
+  background: linear-gradient(135deg, var(--primary), var(--primary-light));
+  box-shadow: 0 4px 12px rgba(74,144,226,0.4);
+}
+
+.btn.secondary {
+  background: linear-gradient(135deg, var(--secondary), #ff8686);
+  box-shadow: 0 4px 12px rgba(255,92,92,0.4);
+}
+
+.btn:hover {
+  transform: translateY(-3px);
+  filter: brightness(1.1);
+}
+
+
+/* ===========================
+   FOOTER
+=========================== */
+footer {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin: 30px 0 20px;
+  text-align: center;
+}
+
+
+
+/* ===========================
+   RESPONSIVE: CHO THIẾT BỊ ĐIỆN THOẠI (Max Width: 768px)
+   =========================== */
+@media (max-width: 768px) {
+    
+    /* 1. Kích thước bàn cờ */
+    :root {
+        /* Giảm kích thước bàn cờ tối đa cho điện thoại */
+        --board-size: min(90vw, 400px); 
+    }
+
+    /* 2. Bố cục chính */
+    .main {
+        flex-direction: column; /* Chuyển từ ngang sang dọc */
+        padding: 10px;
+        gap: 30px; 
+    }
+    
+    /* 3. Tiêu đề nhỏ hơn */
+    .header h1 {
+        font-size: 1.5rem;
+    }
+
+    /* 4. Phần điều khiển (Control Section) */
+    .control-section {
+        width: 100%; /* Chiếm toàn bộ chiều rộng */
+        max-width: 400px; /* Giới hạn để phù hợp với bàn cờ */
+        padding: 0;
+    }
+
+    /* Thanh Range và Nhãn */
+    #countRange {
+        width: 80%;
+        max-width: 400px;
+        margin: 0px 15px;
+    }
+    label{
+        margin-top: 20px;
+    }
+
+    /* Nút bấm xếp dọc */
+    .btn-group {
+        flex-direction: column; /* Xếp các nút thành cột */
+        gap: 10px;
+        padding: 20px 15px;
+        margin-top: 15px;
+    }
+
+    .btn {
+        width: 100%;
+        padding: 12px 0; /* Đệm dọc lớn hơn cho nút dễ bấm */
+    }
+
+    /* 5. Điều chỉnh vị trí Nhãn Tọa độ (rank-label & file-label) */
+    
+    /* Giảm kích thước phông chữ nhãn */
+    .rank-label,
+    .file-label {
+        font-size: 0.75rem; /* Phông chữ nhỏ hơn */
+        font-weight: 500;
+        /* Giảm chiều rộng/cao cho vùng hiển thị nhỏ hơn */
+        width: 20px;
+        height: 20px;
+    }
+    
+    /* Vị trí ban đầu: Nhãn cột (a-h) */
+    .file-label {
+        bottom: -25px; /* Đưa nhãn lên gần rìa hơn */
+    }
+    
+    /* Vị trí ban đầu: Nhãn hàng (1-8) */
+    .rank-label {
+        left: -25px; /* Đưa nhãn vào gần rìa hơn */
+    }
+
+
+    /* Footer nhỏ hơn */
+    footer {
+        font-size: 0.75rem;
+        padding: 10px;
+    }
+}

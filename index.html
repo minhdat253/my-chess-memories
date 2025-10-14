@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Luyện cờ mù</title>
+  <link rel="icon" type="image/png" href="avt11.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="header">
+    <h1>♟️ Huấn luyện ghi nhớ quân cờ</h1>
+    <p>Thử thách trí nhớ & phản xạ thị giác của bạn</p>
+  </header>
+
+  <main class="main">
+    <section class="board-section">
+      <div id="board"></div>
+    </section>
+
+    <section class="control-section">
+      <label for="countRange">Số quân: <span id="countLabel">8</span></label>
+      <input id="countRange" type="range" min="1" max="32" value="8">
+      <div class="btn-group">
+        <button id="randomBtn" class="btn primary">🎲 Random</button>
+        <button id="flipBtn" class="btn secondary">⬆️⬇️ Flip Board</button>
+        <button id="clearBtn" class="btn secondary">🧹 Clear</button>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    © 2025 | Thiết kế bởi Minh Đạt – Chess Memory Trainer
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

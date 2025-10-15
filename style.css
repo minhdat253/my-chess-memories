@@ -31,191 +31,246 @@ body {
 }
 
 /* ===========================
-   HEADER
-=========================== */
-.header {
-  text-align: center;
-  margin-top: 20px;
-}
-
-.header h1 {
-  font-size: 2.4rem;
-  letter-spacing: 1px;
-  color: #ffffff;
-  background: linear-gradient(to right, #63b3ff, #ff9a9e);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  margin-bottom: 6px;
-  margin-top: 5px;
-}
-
-.header p {
-  color: var(--text-muted);
-  font-size: 1.1rem;
-}
-
-/* ===========================
-   MAIN LAYOUT
+   MAIN CONTENT & LAYOUT
 =========================== */
 .main {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 30px;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: flex-start; /* ✅ đổi từ center -> flex-start */
+  gap: 40px;
+  padding: 20px 10%;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* ===========================
-   BÀN CỜ (ĐÃ SỬA CHO HIỂN THỊ TỌA ĐỘ RÌA)
+   BOARD
 =========================== */
+.board-section {
+  position: relative; /* ✅ đảm bảo nút 👁 neo vào bàn cờ */
+  display: flex;
+  justify-content: flex-end; /* ✅ đẩy bàn cờ về gần giữa */
+  align-items: center;
+  flex: 1; /* cho bàn cờ chiếm không gian linh hoạt */
+  min-width: var(--board-size);
+}
+
 #board {
   width: var(--board-size);
   height: var(--board-size);
   display: grid;
   grid-template-columns: repeat(8, 1fr);
   grid-template-rows: repeat(8, 1fr);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
-  background-color: #fff;
-  /* 👇 HAI THAY ĐỔI QUAN TRỌNG NHẤT */
-  overflow: visible; /* Cho phép nhãn tọa độ hiển thị ngoài rìa */
-  position: relative; /* Cần thiết để các nhãn position: absolute căn theo #board */
-  /* 👆 */
-  margin-top: 20px;
+  border: 10px solid rgba(156, 48, 48, 0.521);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
 }
 
 .square {
-  width: 100%;
-  height: 100%;
-  transition: background 0.25s ease;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-.square[data-dark="true"] { background-color: var(--dark-square); }
-.square[data-dark="false"] { background-color: var(--light-square); }
+.square[data-dark="false"] {
+  background-color: var(--light-square);
+}
 
+.square[data-dark="true"] {
+  background-color: var(--dark-square);
+}
+
+/* Tọa độ */
+.rank-label, .file-label {
+  position: absolute;
+  color: var(--text-light);
+  font-weight: bold;
+  font-size: 0.9rem;
+  opacity: 0.6;
+  transition: all 0.3s ease;
+}
+
+/* Nhãn a-h (Hàng 1) */
+.file-label {
+  bottom: 0px; 
+  left: 0;
+  transform: translateX(-50%);
+  padding: 2px 5px;
+  color: var(--dark-square); /* Mặc định chữ đen cho ô trắng */
+}
+
+/* Lật Bàn Cờ */
+.file-label.flipped-coords {
+    top: 0px; /* Di chuyển lên trên */
+    bottom: auto;
+}
+
+/* Nhãn 1-8 (Cột h) */
+.rank-label {
+  right: 0px; 
+  top: 0;
+  transform: translateY(-50%);
+  padding: 5px 2px;
+  color: var(--dark-square); /* Mặc định chữ đen cho ô trắng */
+}
+
+/* Lật Bàn Cờ */
+.rank-label.flipped-coords {
+    left: 0px; /* Di chuyển sang trái */
+    right: auto;
+}
 
 /* ===========================
    QUÂN CỜ
 =========================== */
 .piece {
-  width: 100%;
-  height: 100%;
-  
-  /* 👇 KHẮC PHỤC LỖI HIỂN THỊ 4 QUÂN CỜ BẰNG background-image */
-  background-size: contain; 
-  background-repeat: no-repeat; 
-  background-position: center; 
-  /* 👆 */
-  
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform 0.25s ease, filter 0.25s ease;
-  
-  /* 👇 CẢI THIỆN ĐỘ SẮC NÉT (ÁP DỤNG CHO BACKGROUND IMAGE) */
-  image-rendering: -webkit-optimize-contrast; /* Dành cho trình duyệt cũ của WebKit */
-  image-rendering: crisp-edges; /* Cố gắng duy trì độ sắc nét của viền */
-  
-  /* Nếu hình ảnh quân cờ của bạn là ảnh vector (SVG), bạn có thể bỏ 2 dòng trên
-     hoặc thử dùng 'pixelated' nếu bạn muốn hiệu ứng pixel rõ ràng. */
+  width: 90%;
+  height: 90%;
+  background-size: cover;
+  background-position: center;
+  z-index: 1; 
+  /* Quan trọng cho Click-to-place: Cho phép click xuyên qua quân cờ để chọn ô cha */
+  pointer-events: none; 
+  transition: transform 0.1s ease-out;
 }
 
-/* Khối này hiện KHÔNG có tác dụng vì bạn dùng background-image trong JS */
-.piece img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  image-rendering: crisp-edges;
-  image-rendering: pixelated;
-  pointer-events: none;
+/* Lớp ẩn quân cờ (chỉ dùng để ẩn quân cờ GỐC trong chế độ ghi nhớ) */
+.hide-pieces .piece {
+  display: none !important; /* Ẩn tất cả quân cờ trên bàn */
 }
 
-
-.piece:hover {
-  transform: scale(1.12);
-  filter: brightness(1.2);
-}
-
-/* ... Các phần còn lại của style.css giữ nguyên ... */
 /* ===========================
    CONTROL SECTION
 =========================== */
 .control-section {
-  background: rgba(255,255,255,0.08);
-  border-radius: 14px;
-  padding: 20px 30px;
-  box-shadow: 0 4px 18px rgba(0,0,0,0.3);
-  text-align: center;
-  margin-top: 50px;
-}
-
-label {
-  display: block;
-  font-weight: 600;
-  color: var(--text-light);
-  margin-bottom: 10px;
-  font-size: 1.05rem;
-}
-
-/* Thêm/Sửa khối này trong style.css */
-.file-label, .rank-label {
-  position: absolute; /* Cho phép đặt ngoài rìa */
-  font-size: 1 rem;
-  font-weight: bold;
-  color: var(--text-light);
-  pointer-events: none; 
-  opacity: 0.6;
-}
-
-/* Nhãn cột a-h (Hàng 1) */
-.file-label {
-  text-align: center;
-  width: calc(var(--board-size) / 8); 
-  transform: translateX(-50%); 
-}
-
-/* Nhãn hàng 1-8 (Cột h) */
-.rank-label {
-  /* ... Các thuộc tính cơ bản giữ nguyên ... */
-  text-align: left; /* 👈 THAY ĐỔI CĂN CHỈNH VĂN BẢN SANG TRÁI */
-  height: calc(var(--board-size) / 8); 
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: flex-start; /* 👈 THAY justify-content TỪ 'flex-end' SANG 'flex-start' */
-  padding-left: 5px; /* 👈 THAY padding-right SANG padding-left */
-  padding-right: 0; /* Đảm bảo không còn padding ở bên phải */
-  transform: translateY(-50%); 
+  gap: 20px;
+  padding: 25px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 16px;
+  box-shadow: 
+    inset 2px 2px 6px rgba(255, 255, 255, 0.1),
+    0 6px 20px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(6px);
+  max-width: 300px;
+  width: 100%;
+  border: 1px solid rgba(255,255,255,0.08);
+  flex-shrink: 0; /* ✅ không co lại khi màn hình nhỏ */
 }
 
-/* ===========================
-   CSS CHO CHUYỂN VỊ TRÍ NHÃN (KHÔNG XOAY)
-=========================== */
-
-input[type="range"] {
-  width: 260px;
-  cursor: pointer;
-  accent-color: var(--primary);
-}
-
-.btn-group {
-  margin-top: 18px;
-  display: flex;
-  justify-content: center;
-  gap: 16px;
-}
-
-/* ===========================
-   NÚT BẤM HIỆU ỨNG
-=========================== */
-.btn {
-  padding: 12px 28px;
+/* Tiêu đề & nhãn input */
+.control-section label {
   font-size: 1rem;
   font-weight: 600;
+  letter-spacing: 0.5px;
+  color: var(--text-light);
+  margin-top: 15px;
+  align-self: flex-start;
+}
+
+
+/*==============================
+   INPUTS MỚI (SỐ LƯỢNG VÀ THỜI GIAN)
+=============================== */
+
+/* Style cho input thời gian */
+.time-input {
+  width: 100%;
+  max-width: 150px; 
+  padding: 8px 10px;
+  margin-top: 5px;
+  margin-bottom: 15px;
+  border-radius: 5px;
+  border: 1px solid var(--text-muted);
+  background-color: var(--color-bg2);
+  color: var(--text-light);
+  font-size: 1rem;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+/* Cần điều chỉnh lại control-section để căn chỉnh các input mới */
+.control-section label {
+    margin-top: 20px;
+    margin-bottom: 5px; 
+    align-self: flex-start; /* Cho label bắt đầu từ lề trái */
+    width: 80%;
+    max-width: 400px;
+}
+
+/* ===============================
+   TỌA ĐỘ (CHỈNH SỬA VỊ TRÍ)
+=============================== */
+.rank-label, .file-label {
+  /* ... (Giữ nguyên các thuộc tính chung như position, font, màu nền, transform: none) ... */
+  position: absolute;
+  color: rgba(2, 2, 2, 0.445); 
+  font-weight: bold;
+  font-size: 1.0rem;
+  opacity: 1; 
+  transition: all 0.3s ease;
+  z-index: 5; 
+  border-radius: 3px;
+  padding: 1px 4px;
+  line-height: 1;
+  top: auto;
+  bottom: auto;
+  left: auto;
+  right: auto;
+  transform: none; 
+}
+
+/* Nhãn a-h (File Labels) - Cố định ở rìa dưới (hàng 1) và Căn giữa ngang */
+.file-label {
+  bottom: 5px; 
+  left: 50%; 
+  transform: translateX(-50%); /* Căn giữa chính xác theo chiều ngang */
+}
+
+/* Nhãn 1-8 (Rank Labels) - Cố định ở rìa trái (cột a) và Căn giữa dọc */
+.rank-label {
+  left: 5px; /* <--- ĐÃ SỬA: Cố định cách rìa trái 5px */
+  right: auto; /* <--- ĐÃ SỬA: Đảm bảo không sử dụng rìa phải */
+  top: 50%; 
+  transform: translateY(-50%); /* Căn giữa chính xác theo chiều dọc */
+}
+
+
+#countRange {
+  width: 80%;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 8px;
+  background: var(--color-bg1);
+  outline: none;
+  border-radius: 4px;
+}
+
+/* Nhóm nút */
+.btn-group {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+}
+
+/* Nút chung */
+.btn {
+  padding: 12px 24px;
   border: none;
   border-radius: 10px;
+  font-weight: 600;
+  font-size: 1rem;
+  letter-spacing: 0.5px;
   cursor: pointer;
-  color: white;
+  color: #fff;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
   position: relative;
   overflow: hidden;
-  transition: all 0.3s ease;
 }
 
 /* Hiệu ứng ánh sáng hover */
@@ -235,113 +290,481 @@ input[type="range"] {
   left: 130%;
 }
 
-.btn.primary {
-  background: linear-gradient(135deg, var(--primary), var(--primary-light));
-  box-shadow: 0 4px 12px rgba(74,144,226,0.4);
+
+/* Hiệu ứng sáng nhẹ */
+.btn::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -75%;
+  width: 50%;
+  height: 100%;
+  background: rgba(255,255,255,0.15);
+  transform: skewX(-20deg);
+  transition: left 0.4s ease;
+}
+.btn:hover::after {
+  left: 125%;
 }
 
-.btn.secondary {
+/* Nút chính */
+.primary {
+  background: linear-gradient(135deg, var(--primary-light), var(--primary));
+}
+.primary:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 6px 16px rgba(80,160,255,0.4);
+}
+
+/* Nút phụ */
+.secondary {
   background: linear-gradient(135deg, var(--secondary), #ff8686);
   box-shadow: 0 4px 12px rgba(255,92,92,0.4);
 }
-
-.btn:hover {
-  transform: translateY(-3px);
-  filter: brightness(1.1);
+.secondary:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 6px 16px rgba(150,150,150,0.4);
 }
 
 
 /* ===========================
-   FOOTER
+   🧠 THANH TRẠNG THÁI & ĐỒNG HỒ (CẢI TIẾN)
 =========================== */
-footer {
-  color: var(--text-muted);
-  font-size: 0.9rem;
-  margin: 30px 0 20px;
-  text-align: center;
+#status-display {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: var(--board-size);
+  max-width: var(--board-size);
+  background: linear-gradient(135deg, rgba(0, 90, 90, 0.7), rgba(0, 120, 120, 0.5));
+  border-radius: 14px;
+  padding: 14px 24px;
+  margin-bottom: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow:
+    inset 1px 1px 4px rgba(255,255,255,0.08),
+    0 6px 16px rgba(0,0,0,0.3);
+  backdrop-filter: blur(6px);
+  transition: all 0.3s ease;
+}
+
+/* Trạng thái trò chơi */
+#game-status {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #e0fefb; /* xanh nhạt hơn nền */
+  text-shadow: 0 0 4px rgba(0,255,200,0.3);
+  letter-spacing: 0.5px;
+}
+
+/* Đồng hồ */
+#timer {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #00ffc6; /* xanh ngọc sáng */
+  text-shadow: 0 0 8px rgba(0,255,200,0.6);
+  background: rgba(255,255,255,0.08);
+  padding: 6px 18px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.15);
+  box-shadow:
+    inset 0 1px 4px rgba(255,255,255,0.05),
+    0 3px 6px rgba(0,0,0,0.2);
+  transition: all 0.3s ease;
+}
+
+/* Hiệu ứng “nhịp đập” khi gần hết giờ */
+#timer.low-time {
+  color: #ff6666;
+  text-shadow: 0 0 8px rgba(255,100,100,0.6);
+  animation: pulse-timer 0.8s infinite alternate;
+}
+
+@keyframes pulse-timer {
+  from { transform: scale(1); opacity: 1; }
+  to { transform: scale(1.1); opacity: 0.8; }
 }
 
 
-
 /* ===========================
-   RESPONSIVE: CHO THIẾT BỊ ĐIỆN THOẠI (Max Width: 768px)
-   =========================== */
+   THANH CHỌN QUÂN CỜ (CẢI TIẾN)
+=========================== */
+#piece-selection-bar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  padding: 16px;
+  background: rgba(0, 80, 80, 0.25); /* xanh ngọc đậm trong suốt */
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  box-shadow:
+    inset 2px 2px 6px rgba(255, 255, 255, 0.05),
+    0 4px 12px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(6px);
+  transition: all 0.3s ease;
+}
+
+/* Nhóm các biểu tượng quân cờ */
+#piece-options {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* Mỗi lựa chọn quân */
+.piece-option {
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  background: linear-gradient(145deg, rgba(255,255,255,0.08), rgba(0,0,0,0.15));
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 
+    0 3px 6px rgba(0,0,0,0.3),
+    inset 0 1px 3px rgba(255,255,255,0.1);
+  cursor: pointer;
+  background-size: 80%;
+  background-position: center;
+  background-repeat: no-repeat;
+  transition: all 0.2s ease;
+}
+
+/* Hiệu ứng hover */
+.piece-option:hover {
+  transform: scale(1.08);
+  box-shadow: 0 6px 14px rgba(0,255,200,0.3);
+  border-color: rgba(0,255,200,0.4);
+}
+
+/* Khi quân được chọn */
+.piece-option.selected {
+  border-color: #00bfa5;
+  box-shadow: 0 0 18px rgba(0,255,200,0.6);
+  transform: scale(1.1);
+}
+
+/* Nút đổi màu quân */
+#toggleColorBtn {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #009688, #00bfa5);
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  transition: all 0.25s ease;
+}
+
+#toggleColorBtn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 15px rgba(0,255,200,0.4);
+}
+
+/* ===============================
+   👁 Nút xem lại thế cờ gốc
+   =============================== */
+#toggleOriginalBtn {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  font-size: 22px;
+  cursor: pointer;
+  opacity: 0.6;
+  user-select: none;
+  transition: 0.2s;
+  z-index: 5;
+}
+
+#toggleOriginalBtn:hover {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+#toggleOriginalBtn.active {
+  color: #3cb371; /* xanh lá khi đang bật */
+  opacity: 1;
+}
+
+
+/* ===============================
+   ✅ Hiệu ứng kiểm tra kết quả
+   =============================== */
+.correct-square {
+  box-shadow: inset 0 0 0 4px rgba(60, 179, 113, 0.9);
+  animation: pulse-correct 0.8s ease;
+}
+
+@keyframes pulse-correct {
+  0% { box-shadow: inset 0 0 0 4px rgba(60, 179, 113, 0.9); }
+  50% { box-shadow: inset 0 0 0 2px rgba(60, 179, 113, 0.5); }
+  100% { box-shadow: inset 0 0 0 4px rgba(60, 179, 113, 0.9); }
+}
+
+.wrong-square {
+  box-shadow: inset 0 0 0 4px rgba(255, 64, 64, 0.9);
+  animation: shake-wrong 0.3s ease-in-out;
+}
+
+
+@keyframes shake-wrong {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+/* Quân gốc hiển thị khi xem lại */
+.original-piece {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.4;
+  filter: grayscale(20%);
+  pointer-events: none;
+}
+
+/* ===============================
+   👁 Ẩn hiệu ứng khi xem lại thế cờ gốc
+   =============================== */
+.hide-effects .correct-square,
+.hide-effects .wrong-square {
+  box-shadow: none !important;
+  outline: none !important;
+  animation: none !important;
+}
+
+
+/* Hiệu ứng mờ dần khi xóa quân */
+.fade-out {
+  opacity: 0;
+  transform: scale(0.7);
+  transition: all 0.15s ease;
+}
+
+
+/* ===============================
+   📱 RESPONSIVE DESIGN HOÀN CHỈNH
+=============================== */
+
+/* 🎯 MÀN HÌNH LỚN (>=1201px)
+   Giữ bố cục gốc — bàn cờ bên trái, control bên phải
+*/
+@media (min-width: 1201px) {
+  .main {
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: flex-start;
+    padding: 20px 10%;
+    gap: 40px;
+  }
+
+  :root {
+    --board-size: 680px;
+  }
+
+  .control-section {
+    max-width: 300px;
+  }
+
+  #status-display {
+    width: var(--board-size);
+  }
+}
+
+/* 💻 TABLET & LAPTOP NHỎ (769px → 1200px)
+   Giảm nhẹ kích thước, bố cục vẫn nằm ngang
+*/
+@media (min-width: 769px) and (max-width: 1200px) {
+  :root {
+    --board-size: 520px;
+  }
+
+  .main {
+    flex-direction: row;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 30px;
+    padding: 20px 5%;
+  }
+
+  .board-section {
+    justify-content: center;
+  }
+
+  .control-section {
+    max-width: 260px;
+    padding: 18px;
+    gap: 15px;
+  }
+
+  #status-display {
+    width: var(--board-size);
+    padding: 10px 18px;
+  }
+
+  #game-status {
+    font-size: 1rem;
+  }
+
+  #timer {
+    font-size: 1.25rem;
+    padding: 6px 14px;
+  }
+
+  .piece-option {
+    width: 48px;
+    height: 48px;
+  }
+
+  #toggleOriginalBtn {
+    font-size: 20px;
+    bottom: 8px;
+    right: 8px;
+  }
+}
+
+/* 📱 ĐIỆN THOẠI (<=768px)
+   Chuyển sang bố cục dọc — bàn cờ trên, control dưới
+*/
 @media (max-width: 768px) {
-    
-    /* 1. Kích thước bàn cờ */
-    :root {
-        /* Giảm kích thước bàn cờ tối đa cho điện thoại */
-        --board-size: min(90vw, 400px); 
-    }
+  .main {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0px;
+  }
 
-    /* 2. Bố cục chính */
-    .main {
-        flex-direction: column; /* Chuyển từ ngang sang dọc */
-        padding: 10px;
-        gap: 30px; 
-    }
-    
-    /* 3. Tiêu đề nhỏ hơn */
-    .header h1 {
-        font-size: 1.5rem;
-    }
+  :root {
+    --board-size: min(90vw, 400px);
+  }
 
-    /* 4. Phần điều khiển (Control Section) */
-    .control-section {
-        width: 100%; /* Chiếm toàn bộ chiều rộng */
-        max-width: 400px; /* Giới hạn để phù hợp với bàn cờ */
-        padding: 0;
-    }
+  #board {
+    border-width: 5px;
+  }
 
-    /* Thanh Range và Nhãn */
-    #countRange {
-        width: 80%;
-        max-width: 400px;
-        margin: 0px 15px;
-    }
-    label{
-        margin-top: 20px;
-    }
+  #status-display {
+    width: min(90vw, 400px);
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    text-align: center;
+  }
 
-    /* Nút bấm xếp dọc */
-    .btn-group {
-        flex-direction: column; /* Xếp các nút thành cột */
-        gap: 10px;
-        padding: 20px 15px;
-        margin-top: 15px;
-    }
+  #game-status {
+    font-size: 1rem;
+  }
 
-    .btn {
-        width: 100%;
-        padding: 12px 0; /* Đệm dọc lớn hơn cho nút dễ bấm */
-    }
+  #timer {
+    font-size: 1.3rem;
+    padding: 5px 14px;
+  }
 
-    /* 5. Điều chỉnh vị trí Nhãn Tọa độ (rank-label & file-label) */
-    
-    /* Giảm kích thước phông chữ nhãn */
-    .rank-label,
-    .file-label {
-        font-size: 0.75rem; /* Phông chữ nhỏ hơn */
-        font-weight: 500;
-        /* Giảm chiều rộng/cao cho vùng hiển thị nhỏ hơn */
-        width: 20px;
-        height: 20px;
-    }
-    
-    /* Vị trí ban đầu: Nhãn cột (a-h) */
-    .file-label {
-        bottom: -25px; /* Đưa nhãn lên gần rìa hơn */
-    }
-    
-    /* Vị trí ban đầu: Nhãn hàng (1-8) */
-    .rank-label {
-        left: -25px; /* Đưa nhãn vào gần rìa hơn */
-    }
+  .control-section {
+    width: 100%;
+    max-width: var(--board-size);
+    padding: 12px;
+    border-radius: 12px;
+    gap: 12px;
+    margin-top: 15px;
+  }
+  
+
+  .btn-group {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .btn {
+    width: 100%;
+    font-size: 0.95rem;
+  }
+
+  #piece-selection-bar {
+    padding: 10px;
+    gap: 10px;
+  }
+
+  .piece-option {
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
+  }
+
+  #toggleColorBtn {
+    font-size: 0.9rem;
+    padding: 8px 12px;
+  }
+
+  .rank-label,
+  .file-label {
+    font-size: 0.75rem;
+  }
+  .rank-label {
+    left: 0px; /* Giữ cách rìa trái 4px */
+  }
+  
+
+  #toggleOriginalBtn {
+    font-size: 18px;
+    bottom: 6px;
+    right: 6px;
+  }
+}
+
+/* Khi giao diện nhỏ, đưa phần nhập thời gian xuống cuối control section */
+@media (max-width: 768px) {
+  .control-section {
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Đưa phần nhập thời gian xuống cuối */
+  label[for="timeInput"],
+  #timeInput {
+    order: 99; /* đảm bảo luôn ở cuối */
+  }
+
+  /* Canh giữa lại cho đẹp */
+  #timeInput {
+    align-self: center;
+    width: 70%;
+  }
+}
 
 
-    /* Footer nhỏ hơn */
-    footer {
-        font-size: 0.75rem;
-        padding: 10px;
-    }
+/* 📱 MINI SCREEN (<=480px)
+   Tối ưu hóa cho điện thoại nhỏ
+*/
+@media (max-width: 480px) {
+  :root {
+    --board-size: min(90vw, 330px);
+  }
+
+  #status-display {
+    padding: 8px 10px;
+    gap: 6px;
+  }
+
+  #timer {
+    font-size: 1.1rem;
+    padding: 4px 10px;
+  }
+
+  .piece-option {
+    width: 40px;
+    height: 40px;
+  }
+
+  .control-section {
+    padding: 8px 10px;
+    border-radius: 10px;
+  }
+
+  #toggleOriginalBtn {
+    font-size: 16px;
+  }
 }

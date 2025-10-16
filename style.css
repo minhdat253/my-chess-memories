@@ -648,7 +648,7 @@ body {
 */
 @media (max-width: 768px) {
   :root {
-    --board-size: min(92vw, 440px); /* ✅ To hơn, cân đối hơn */
+    --board-size: min(92vw, 480px); /* ✅ To hơn, cân đối hơn */
   }
 
   .main {

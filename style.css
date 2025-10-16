@@ -820,7 +820,8 @@ body {
 */
 @media (max-width: 480px) {
   :root {
-    --board-size: min(90vw, 320px);
+    /* --board-size: min(90vw, 320px); */
+    --board-size: min(92vw, 360px); /* ✅ To hơn, cân đối hơn */
   }
 
   body {
